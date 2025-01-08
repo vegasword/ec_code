@@ -1,29 +1,49 @@
-# README #
+# Projet Symfony
 
-This README would normally document whatever steps are necessary to get your application up and running.
+Ce projet utilise le framework Symfony.
+Ce guide vous permettra de démarrer rapidement avec l'installation, la configuration, et l'exécution du projet.
 
-### What is this repository for? ###
+## Prérequis
 
-* Quick summary
-* Version
-* [Learn Markdown](https://bitbucket.org/tutorials/markdowndemo)
+Avant de commencer, assurez-vous d'avoir installé les outils suivants sur votre machine :
 
-### How do I get set up? ###
+- **PHP** (version >= 8.0)
+- **Composer**
+- **Symfony CLI**
+- **Serveur de base de données** (MySQL)
 
-* Summary of set up
-* Configuration
-* Dependencies
-* Database configuration
-* How to run tests
-* Deployment instructions
+## Étapes pour démarrer le projet
 
-### Contribution guidelines ###
+### 1. Installer les dépendances
 
-* Writing tests
-* Code review
-* Other guidelines
+```bash
+composer install
+```
 
-### Who do I talk to? ###
+### 2. Configurer l'environnement
 
-* Repo owner or admin
-* Other community or team contact
+```bash
+cp .env .env.local
+```
+
+Modifiez le fichier .env.local pour configurer les paramètres de votre base de données et autres variables d'environnement :
+
+```bash
+DATABASE_URL="mysql://root:mot_de_pase@127.0.0.1:3307/nom_de_votre_base_de_donnees"
+```
+
+### 3. Préparer la base de données
+
+Si vous n'avez pas encore cloné le projet, commencez par le faire via Git :
+
+```bash
+php bin/console doctrine:database:create
+php bin/console make:migration
+php bin/console doctrine:migrations:migrate
+```
+
+### 4. Démarrer le serveur Symfony
+
+```bash
+php bin/console server:run
+```
