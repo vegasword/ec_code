@@ -1,7 +1,22 @@
 # Projet Symfony
 
-Ce projet utilise le framework Symfony.
-Ce guide vous permettra de démarrer rapidement avec l'installation, la configuration, et l'exécution du projet.
+## Fonctionnalités
+
+- **US1: Création du système d’authentification**
+    - [x] L'utilisateur peut s'inscrire avec une adresse email valide et un mot de passe sécurisé (minimum 8 caractères).
+    - [x] L'utilisateur peut se connecter avec son email et mot de passe.
+    - [ ] Un message d'erreur est affiché en cas de mot de passe incorrect.
+    - [x] L'utilisateur peut se déconnecter facilement depuis n'importe quelle page de la plateforme via le bouton prévu.
+    - [x] Les mots de passe sont stockés de manière sécurisée (hashés).
+- **US2: Ajout d'un livre en cours de lecture**
+    - [x] En cliquant sur le bouton, la popup du formulaire s’ouvre.
+    - [x] Lorsque le formulaire est validé, les données sont enregistrées en base de données.
+    - [ ] Le livre en cours de lecture est ajouté au tableau sans aucun rechargement de page.
+- **US7: Correction du bug d'affichage de mes lectures en cours**
+    - [x] Le nom du livre et sa description apparaissent dans le tableau.
+- **US8: Affichage de mes lectures terminées dans le tableau de mes lectures**
+    - [x] Le template déjà en place est respecté.
+    - [ ] Les livres lus sont chargés depuis la base de données.
 
 ## Prérequis
 
