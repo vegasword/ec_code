@@ -1,10 +1,12 @@
 <?php
 namespace App\Controller;
 
+use App\Entity\Book;
 use App\Entity\User;
 use App\Form\LoginFormType;
 use App\Form\RegisterFormType;
 use App\Repository\BookReadRepository;
+use App\Repository\BookRepository;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -17,30 +19,37 @@ use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class HomeController extends AbstractController
 {
-    private BookReadRepository $readBookRepository;
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordHasher;
 
     public function __construct(
-        BookReadRepository $bookReadRepository,
         EntityManagerInterface $entityManager,
         UserAuthenticatorInterface $userAuthenticator,
         UserPasswordHasherInterface $passwordHasher,
         LoggerInterface $logger
     ) {
-        $this->readBookRepository = $bookReadRepository;
         $this->entityManager = $entityManager;
         $this->passwordHasher = $passwordHasher;
     }
 
     #[Route('/', name: 'app.home')]
-    public function index(): Response
+    public function index(BookRepository $bookRepository, BookReadRepository $bookReadRepository): Response
     {
         $userId = 1;
-        $booksRead = $this->readBookRepository->findByUserId($userId, false);
+        $booksRead = $bookReadRepository->findByUserId($userId, false);
+        $booksReadMetaData = [];
+        foreach ($booksRead as $bookRead)
+        {
+            $book = $bookRepository->findOneById($bookRead->getBookId());
+            array_push($booksReadMetaData, [
+                'name' => $book->getName(),
+                'description' => $book->getDescription(),
+                'updatedAt' => $book->getUpdatedAt()
+            ]);
+        }
 
         return $this->render('pages/home.html.twig', [
-            'booksRead' => $booksRead,
+            'booksReadMetaData' => $booksReadMetaData,
             'name' => 'Accueil',
         ]);
     }
