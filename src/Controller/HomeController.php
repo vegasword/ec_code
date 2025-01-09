@@ -2,45 +2,55 @@
 namespace App\Controller;
 
 use App\Entity\Book;
+use App\Entity\BookRead;
 use App\Entity\User;
+use App\Form\AddBookType;
 use App\Form\LoginFormType;
 use App\Form\RegisterFormType;
 use App\Repository\BookReadRepository;
 use App\Repository\BookRepository;
 use App\Repository\UserRepository;
+use DateTime;
 use Doctrine\ORM\EntityManagerInterface;
-use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Component\Security\Http\Authentication\UserAuthenticatorInterface;
 
 class HomeController extends AbstractController
 {
     private EntityManagerInterface $entityManager;
     private UserPasswordHasherInterface $passwordHasher;
-
+    private UserRepository $userRepository;
+    private BookRepository $bookRepository;
+    private BookReadRepository $bookReadRepository;
+    
     public function __construct(
         EntityManagerInterface $entityManager,
-        UserAuthenticatorInterface $userAuthenticator,
+        UserRepository $userRepository,
         UserPasswordHasherInterface $passwordHasher,
-        LoggerInterface $logger
+        BookRepository $bookRepository,
+        BookReadRepository $bookReadRepository
     ) {
         $this->entityManager = $entityManager;
         $this->passwordHasher = $passwordHasher;
+        $this->userRepository = $userRepository;
+        $this->bookRepository = $bookRepository;
+        $this->bookReadRepository = $bookReadRepository;
     }
 
     #[Route('/', name: 'app.home')]
-    public function index(BookRepository $bookRepository, BookReadRepository $bookReadRepository): Response
+    public function index(Request $request): Response
     {
         $userId = 1;
-        $booksRead = $bookReadRepository->findByUserId($userId, false);
+
+        // Read book display
+        $booksRead = $this->bookReadRepository->findByUserId($userId, false);
         $booksReadMetaData = [];
         foreach ($booksRead as $bookRead)
         {
-            $book = $bookRepository->findOneById($bookRead->getBookId());
+            $book = $this->bookRepository->findOneById($bookRead->getBookId());
             array_push($booksReadMetaData, [
                 'name' => $book->getName(),
                 'description' => $book->getDescription(),
@@ -48,21 +58,41 @@ class HomeController extends AbstractController
             ]);
         }
 
+        // Add book modal form handling
+        $addBookForm = $this->createForm(AddBookType::class);
+        $addBookForm->handleRequest($request);
+        if ($addBookForm->isSubmitted() && $addBookForm->isValid())
+        {
+            $data = $addBookForm->getData();
+            $selectedBook = $data['book'];
+            $newBook = new BookRead();
+            $newBook->setUserId($userId);
+            $newBook->setRead($data['is_read']);
+            $newBook->setBookId($selectedBook->getId());
+            $newBook->setRating($data['rating']);
+            $newBook->setDescription($data['description']);
+            $newBook->setCreatedAt($selectedBook->getCreatedAt());
+            $newBook->setUpdatedAt($selectedBook->getUpdatedAt());
+            $this->entityManager->persist($newBook);
+            $this->entityManager->flush();
+        }
+
         return $this->render('pages/home.html.twig', [
-            'booksReadMetaData' => $booksReadMetaData,
             'name' => 'Accueil',
+            'booksReadMetaData' => $booksReadMetaData,
+            'addBookForm' => $addBookForm
         ]);
     }
 
     #[Route('/login', name: 'auth.login')]
-    public function login(Request $request, UserRepository $userRepository): Response
+    public function login(Request $request): Response
     {
         $loginForm = $this->createForm(LoginFormType::class);
         $loginForm->handleRequest($request);
 
         if ($loginForm->isSubmitted() && $loginForm->isValid()) {
             $data = $loginForm->getData();
-            $user = $userRepository->findOneBy(['email' => $data['email']]);
+            $user = $this->userRepository->findOneBy(['email' => $data['email']]);
             if ($user && $this->passwordHasher->isPasswordValid($user, $data['password'])) {
                 return $this->redirectToRoute('app.home');
             }

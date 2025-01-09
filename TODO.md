@@ -1,3 +1,6 @@
 US1:
-	Ne comporte par de messages d'erreurs concernant les validations des Form
-	Ne possède pas de système de session donc de bouton déconnexion
+	Messages d'erreurs concernant les validations des Form
+	Système de session dont l'ajout du bouton déconnexion
+
+US2:
+	Ne pas recharger la page lors de l'envoi d'un livre lu
