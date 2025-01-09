@@ -1,43 +1,27 @@
 <?php
 namespace App\Controller;
 
-use App\Entity\Book;
-use App\Entity\BookRead;
-use App\Entity\User;
+use App\Service\BookService;
+use App\Service\AuthService;
 use App\Form\AddBookType;
 use App\Form\LoginFormType;
 use App\Form\RegisterFormType;
-use App\Repository\BookReadRepository;
-use App\Repository\BookRepository;
-use App\Repository\UserRepository;
-use DateTime;
-use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Annotation\Route;
 
 class HomeController extends AbstractController
 {
-    private EntityManagerInterface $entityManager;
-    private UserPasswordHasherInterface $passwordHasher;
-    private UserRepository $userRepository;
-    private BookRepository $bookRepository;
-    private BookReadRepository $bookReadRepository;
-    
+    private BookService $bookService;
+    private AuthService $authService;
+
     public function __construct(
-        EntityManagerInterface $entityManager,
-        UserRepository $userRepository,
-        UserPasswordHasherInterface $passwordHasher,
-        BookRepository $bookRepository,
-        BookReadRepository $bookReadRepository
+        BookService $bookService,
+        AuthService $authService
     ) {
-        $this->entityManager = $entityManager;
-        $this->passwordHasher = $passwordHasher;
-        $this->userRepository = $userRepository;
-        $this->bookRepository = $bookRepository;
-        $this->bookReadRepository = $bookReadRepository;
+        $this->bookService = $bookService;
+        $this->authService = $authService;
     }
 
     #[Route('/', name: 'app.home')]
@@ -45,42 +29,19 @@ class HomeController extends AbstractController
     {
         $userId = 1;
 
-        // Read book display
-        $booksRead = $this->bookReadRepository->findByUserId($userId, false);
-        $booksReadMetaData = [];
-        foreach ($booksRead as $bookRead)
-        {
-            $book = $this->bookRepository->findOneById($bookRead->getBookId());
-            array_push($booksReadMetaData, [
-                'name' => $book->getName(),
-                'description' => $book->getDescription(),
-                'updatedAt' => $book->getUpdatedAt()
-            ]);
-        }
+        $booksReadMetaData = $this->bookService->getBooksReadMetaData($userId);
 
-        // Add book modal form handling
         $addBookForm = $this->createForm(AddBookType::class);
         $addBookForm->handleRequest($request);
-        if ($addBookForm->isSubmitted() && $addBookForm->isValid())
-        {
+        if ($addBookForm->isSubmitted() && $addBookForm->isValid()) {
             $data = $addBookForm->getData();
-            $selectedBook = $data['book'];
-            $newBook = new BookRead();
-            $newBook->setUserId($userId);
-            $newBook->setRead($data['is_read']);
-            $newBook->setBookId($selectedBook->getId());
-            $newBook->setRating($data['rating']);
-            $newBook->setDescription($data['description']);
-            $newBook->setCreatedAt($selectedBook->getCreatedAt());
-            $newBook->setUpdatedAt($selectedBook->getUpdatedAt());
-            $this->entityManager->persist($newBook);
-            $this->entityManager->flush();
+            $this->bookService->addBookRead($userId, $data);
         }
 
         return $this->render('pages/home.html.twig', [
             'name' => 'Accueil',
             'booksReadMetaData' => $booksReadMetaData,
-            'addBookForm' => $addBookForm
+            'addBookForm' => $addBookForm->createView()
         ]);
     }
 
@@ -92,8 +53,7 @@ class HomeController extends AbstractController
 
         if ($loginForm->isSubmitted() && $loginForm->isValid()) {
             $data = $loginForm->getData();
-            $user = $this->userRepository->findOneBy(['email' => $data['email']]);
-            if ($user && $this->passwordHasher->isPasswordValid($user, $data['password'])) {
+            if ($this->authService->authenticateUser($data)) {
                 return $this->redirectToRoute('app.home');
             }
         }
@@ -107,17 +67,14 @@ class HomeController extends AbstractController
     #[Route('/register', name: 'auth.register')]
     public function register(Request $request): Response
     {
-        $user = new User();
         $registerForm = $this->createForm(RegisterFormType::class);
         $registerForm->handleRequest($request);
 
         if ($registerForm->isSubmitted() && $registerForm->isValid()) {
             $data = $registerForm->getData();
-            $user->setEmail($data['email']);
-            $user->setPassword($this->passwordHasher->hashPassword($user, $data['password']));
-            $this->entityManager->persist($user);
-            $this->entityManager->flush();
-            return $this->redirectToRoute('app.home');
+            if ($this->authService->registerUser($data)) {
+                return $this->redirectToRoute('auth.login');
+            }
         }
 
         return $this->render('auth/register.html.twig', [
