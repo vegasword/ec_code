@@ -29,8 +29,6 @@ class HomeController extends AbstractController
     {
         $userId = 1;
 
-        $booksReadMetaData = $this->bookService->getBooksReadMetaData($userId);
-
         $addBookForm = $this->createForm(AddBookType::class);
         $addBookForm->handleRequest($request);
         if ($addBookForm->isSubmitted() && $addBookForm->isValid()) {
@@ -40,7 +38,8 @@ class HomeController extends AbstractController
 
         return $this->render('pages/home.html.twig', [
             'name' => 'Accueil',
-            'booksReadMetaData' => $booksReadMetaData,
+            'booksReading' => $this->bookService->getBooksReading($userId),
+            'booksRead' => $this->bookService->getBooksRead($userId),
             'addBookForm' => $addBookForm->createView()
         ]);
     }

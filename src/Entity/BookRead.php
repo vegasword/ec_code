@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Entity;
 
 use App\Repository\BookReadRepository;
@@ -17,11 +16,12 @@ class BookRead
     #[ORM\Column]
     private ?int $user_id = null;
 
-    #[ORM\Column(type: Types::BIGINT)]
-    private ?string $book_id = null;
+    #[ORM\ManyToOne]
+    #[ORM\JoinColumn(nullable: false)]
+    private ?Book $book = null;
 
     #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2, nullable: true)]
-    private ?string $rating = null;
+    private ?float $rating = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]
     private ?string $description = null;
@@ -55,24 +55,24 @@ class BookRead
         return $this;
     }
 
-    public function getBookId(): ?string
+    public function getBook(): ?Book
     {
-        return $this->book_id;
+        return $this->book;
     }
 
-    public function setBookId(string $book_id): static
+    public function setBook(?Book $book): static
     {
-        $this->book_id = $book_id;
+        $this->book = $book;
 
         return $this;
     }
 
-    public function getRating(): ?string
+    public function getRating(): ?float
     {
         return $this->rating;
     }
 
-    public function setRating(?string $rating): static
+    public function setRating(?float $rating): static
     {
         $this->rating = $rating;
 

@@ -16,7 +16,7 @@
     - [x] Le nom du livre et sa description apparaissent dans le tableau.
 - **US8: Affichage de mes lectures terminées dans le tableau de mes lectures**
     - [x] Le template déjà en place est respecté.
-    - [ ] Les livres lus sont chargés depuis la base de données.
+    - [x] Les livres lus sont chargés depuis la base de données.
 
 ## Prérequis
 
