@@ -9,7 +9,6 @@ async function buildRadarChart() {
     if (!categoriesResponse.ok) throw new Error(categoriesResponse.statusText);
     
     var categories = await categoriesResponse.json();
-    console.log(categories);
     
     var booksReadResponse = await fetch('https://localhost:8000/books/read', {
         method: 'GET',
@@ -20,7 +19,6 @@ async function buildRadarChart() {
     if (!booksReadResponse.ok) throw new Error(booksReadResponse.statusText);
     
     var booksRead = await booksReadResponse.json();
-    console.log(booksRead);
     
     const categoryCounts = {};
     categories.forEach(category => { categoryCounts[category.name] = 0; });
@@ -30,9 +28,9 @@ async function buildRadarChart() {
         categoryCounts[bookRead.category]++;
       }
     });
-    console.log(categoryCounts);
     
     var chartOptions = {
+      plotOptions: { radar: { size: 100 } },
       chart: {
         type: 'radar',
         animations: { enabled: false },
@@ -40,16 +38,15 @@ async function buildRadarChart() {
         selection: { enabled: false },
         zoom: { enabled: false }
       },
-      tooltip: {
-        enabled: false
-      },
+      dataLabels: { enabled: true },
+      tooltip: { enabled: false },
       series: [{ data: Object.values(categoryCounts) }],
       xaxis: {
         categories: Object.keys(categoryCounts)
       }
     }
 
-    var radarChart = new ApexCharts(document.querySelector("#chart"), chartOptions);
+    var radarChart = new ApexCharts(document.getElementById('radar'), chartOptions);
     radarChart.render();
   } catch(error) {
     console.error(error);
