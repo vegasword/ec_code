@@ -35,7 +35,6 @@ Avant de commencer, assurez-vous d'avoir installé les outils suivants sur votre
 
 ```bash
 composer install
-npm install
 ```
 
 ### 2. Configurer l'environnement

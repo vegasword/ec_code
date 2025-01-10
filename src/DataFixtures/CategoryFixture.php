@@ -10,9 +10,8 @@ class CategoryFixture extends Fixture
 {
     public function load(ObjectManager $manager): void
     {
-        // Define the data to insert
-        $now    = new \DateTime();
-        $data   = [
+        $now = new \DateTime();
+        $data = [
             [
                 'name' => 'Développement personnel',
                 'description' => 'Livres axés sur le dépassement de soi, la discipline et l\'amélioration continue.',
@@ -56,7 +55,6 @@ class CategoryFixture extends Fixture
         ];
 
 
-        // Iterate over the data and create entities
         foreach ($data as $item) {
             $category = new Category();
             $category->setName($item['name']);
@@ -67,7 +65,6 @@ class CategoryFixture extends Fixture
             $manager->persist($category);
         }
 
-        // Persist data to the database
         $manager->flush();
     }
 }
