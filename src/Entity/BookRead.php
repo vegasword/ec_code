@@ -20,7 +20,7 @@ class BookRead
     #[ORM\JoinColumn(nullable: false)]
     private ?Book $book = null;
 
-    #[ORM\Column(type: Types::DECIMAL, precision: 5, scale: 2, nullable: true)]
+    #[ORM\Column(type: Types::FLOAT, nullable: true)]
     private ?float $rating = null;
 
     #[ORM\Column(type: Types::TEXT, nullable: true)]

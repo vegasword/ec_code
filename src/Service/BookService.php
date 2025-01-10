@@ -6,6 +6,7 @@ use DateTime;
 use App\Entity\BookRead;
 use App\Repository\BookReadRepository;
 use App\Repository\BookRepository;
+use App\Repository\CategoryRepository;
 use Doctrine\ORM\EntityManagerInterface;
 
 class BookService
@@ -13,15 +14,18 @@ class BookService
     private EntityManagerInterface $entityManager;
     private BookRepository $bookRepository;
     private BookReadRepository $bookReadRepository;
+    private CategoryRepository $categoryRepository;
 
     public function __construct(
         EntityManagerInterface $entityManager,
         BookRepository $bookRepository,
-        BookReadRepository $bookReadRepository
+        BookReadRepository $bookReadRepository,
+        CategoryRepository $categoryRepository
     ) {
         $this->entityManager = $entityManager;
         $this->bookRepository = $bookRepository;
         $this->bookReadRepository = $bookReadRepository;
+        $this->categoryRepository = $categoryRepository;
     }
 
     public function getBooksReading(int $userId): array
@@ -67,5 +71,10 @@ class BookService
         $newBookRead->setUpdatedAt(new DateTime());
         $this->entityManager->persist($newBookRead);
         $this->entityManager->flush();
+    }
+
+    public function getAllCategoriesNames(): array
+    {
+       return $this->categoryRepository->getAllNames(); 
     }
 }

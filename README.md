@@ -12,6 +12,8 @@
     - [x] En cliquant sur le bouton, la popup du formulaire s’ouvre.
     - [x] Lorsque le formulaire est validé, les données sont enregistrées en base de données.
     - [ ] Le livre en cours de lecture est ajouté au tableau sans aucun rechargement de page.
+- **US4: Affichage du graphique radar**
+    - [x] L’image actuellement présente en page d’accueil est remplacée par un vrai graphique avec les données en base de données.
 - **US7: Correction du bug d'affichage de mes lectures en cours**
     - [x] Le nom du livre et sa description apparaissent dans le tableau.
 - **US8: Affichage de mes lectures terminées dans le tableau de mes lectures**
@@ -33,6 +35,7 @@ Avant de commencer, assurez-vous d'avoir installé les outils suivants sur votre
 
 ```bash
 composer install
+npm install
 ```
 
 ### 2. Configurer l'environnement
