@@ -1,6 +1,6 @@
 async function buildRadarChart() {
   try {
-    var categoriesResponse = await fetch('https://localhost:8000/books/categories', {
+    var categoriesResponse = await fetch('http://localhost:8000/books/categories', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         mode: 'cors',
@@ -10,7 +10,7 @@ async function buildRadarChart() {
     
     var categories = await categoriesResponse.json();
     
-    var booksReadResponse = await fetch('https://localhost:8000/books/read', {
+    var booksReadResponse = await fetch('http://localhost:8000/books/read', {
         method: 'GET',
         headers: { 'Content-Type': 'application/json' },
         mode: 'cors',
